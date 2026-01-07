@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{ums/Login/login_layout}">
+
+    <head>
+        <meta charset="ISO-8859-1">
+
+        <script th:inline="javascript" th:src="@{/resources/js/ums_validation_utility_jscript.js}"></script>
+        <!--  <%-- <script type="text/javascript" src="<%=request.getContextPath()%>/resources/js/jquery-1.3.2.min.js"></script>  --%> -->
+        <script th:inline="javascript" th:src="@{/resources/js/jquery.jcryption-1.0.1.min.js}"></script>
+        <script th:inline="javascript" th:src="@{/resources/js/pagesec.js}"></script>
+        <script th:inline="javascript" th:src="@{/resources/js/VirtualKeyBoard.js}"></script>
+        <script th:inline="javascript" th:src="@{/resources/js/jCaptcha.js}"></script>
+        <script th:inline="javascript">
+
+            var USER_MIN_LEN = 3;
+		var USER_MAX_LEN = 20;
+		var PASS_MIN_LEN = 6;
+		var PASS_MAX_LEN = 50;
+
+
+            function formValidation() {
+                userId = document.Userlogin.userid.value;
+                institution = document.Userlogin.loginas.value;
+                passwordEnc = document.Userlogin.password.value;
+                captcha = document.Userlogin.j_captcha_response.value;
+                console.log("validating : formValidations: ");
+                return true;
+                if (isEmpty(userId)) {
+
+                    alert('[[#{ums.pls.enter}]] [[#{ums.user.id}]]');
+                    document.getElementById('userid').focus();
+                    return false;
+                }
+                else if (numeric(userId)) {
+                    alert('[[#{ums.only.alphanumeric}]] [[#{ums.user.id}]]');
+                    document.getElementById('userid').focus();
+                    return false;
+                }
+                else if (!alphaNumeric(userId)) {
+                    alert('[[#{ums.only.alphanumeric}]] [[#{ums.user.id}]]');
+                    document.getElementById('userid').focus();
+                    return false;
+                }
+                else if (isMinLength(userId, USER_MIN_LEN)) {
+                    alert(
+                        '[[#{ums.min}]] ' + USER_MIN_LEN + ' ' +
+                        '[[#{ums.max}]] ' + USER_MAX_LEN + ' ' +
+                        '[[#{ums.allow}]] [[#{ums.user.id}]]'
+                    );
+                    document.getElementById('userid').focus();
+                    return false;
+                }
+                else if (isMaxLength(userId, USER_MAX_LEN)) {
+                    alert(
+                        '[[#{ums.min}]] ' + USER_MIN_LEN + ' ' +
+                        '[[#{ums.max}]] ' + USER_MAX_LEN + ' ' +
+                        '[[#{ums.allow}]] [[#{ums.user.id}]]'
+                    );
+                    document.getElementById('userid').focus();
+                    return false;
+                }
+                else if (isEmpty(passwordEnc)) {
+                    alert('[[#{ums.pls.enter}]] [[#{ums.password}]]');
+                    document.getElementById('passwordEnc').focus();
+                    return false;
+                }
+                else if (hasspaces(passwordEnc)) {
+                    alert('[[#{ums.password}]] [[#{ums.password.nospace}]]');
+                    document.getElementById('passwordEnc').focus();
+                    return false;
+                }
+                else if (isMinLength(passwordEnc, PASS_MIN_LEN)) {
+                    alert(
+                        '[[#{ums.min}]] ' + PASS_MIN_LEN + ' ' +
+                        '[[#{ums.max}]] ' + PASS_MAX_LEN + ' ' +
+                        '[[#{ums.allow}]] [[#{ums.password}]]'
+                    );
+                    document.getElementById('passwordEnc').focus();
+                    return false;
+                }
+                else if (isMaxLength(passwordEnc, PASS_MAX_LEN)) {
+                    alert(
+                        '[[#{ums.min}]] ' + PASS_MIN_LEN + ' ' +
+                        '[[#{ums.max}]] ' + PASS_MAX_LEN + ' ' +
+                        '[[#{ums.allow}]] [[#{ums.password}]]'
+                    );
+                    document.getElementById('passwordEnc').focus();
+                    return false;
+                }
+                else if (isEmpty(institution)) {
+                    alert('[[#{ums.pls.enter}]] [[#{ums.loginas}]]');
+                    document.getElementById('loginas').focus();
+                    return false;
+                }
+                else if (hasspaces(institution)) {
+                    alert('[[#{ums.loginas}]] [[#{ums.password.nospace}]]');
+                    document.getElementById('loginas').focus();
+                    return false;
+                }
+                else if (!isAlphabeticOnly(institution)) {
+                    alert('[[#{ums.only.alpha}]] [[#{ums.loginas}]]');
+                    document.getElementById('loginas').focus();
+                    return false;
+                }
+                else if (institution.length !== 3) {
+                    alert('Minimum 3 characters are required in [[#{ums.loginas}]]');
+                    document.getElementById('loginas').focus();
+                    return false;
+                }
+                else if (captcha === null || captcha === "") {
+                    alert('[[#{ums.enter.captcha}]]');
+                    document.Userlogin.j_captcha_response.focus();
+                    return false;
+                }
+
+                return true;
+            }
+
+            function loginUser() {
+                document.Userlogin.action = '[[ @{/common/ums_lu/u_4.rcn} ]]';
+                document.Userlogin.submit();
+            }
+
+            function forgotPassword() {
+                document.Userlogin.action = '[[ @{/ums/tl_fp/u_1.rcn} ]]';
+                document.Userlogin.submit();
+            }
+
+            function clearFun() {
+                document.Userlogin.userId.value = '';
+                document.Userlogin.password.value = '';
+                document.Userlogin.loginas.value = '';
+            }
+
+            function troubleInLogging() {
+                document.Userlogin.action = '[[ @{/ums/tl_tl/u_5.rcn} ]]';
+                document.Userlogin.submit();
+            }
+            var statusFlag = "";
+            var statusMsg = "";
+            if ('<span th:text="${statusFlag}"></span>' != null) {
+
+                statusFlag = '<span th:text="${statusFlag}"></span>';
+                statusMsg = '<span th:text="${statusMsg}"></span>';
+            }
+
+            function loadStatus(statusFlag, statusMsg) {
+
+
+                if (statusFlag == '') {
+                    document.getElementById("feedBackTd").innerHTML = "&nbsp;";
+                }
+                else {
+                    if (statusFlag == "success" || statusFlag == 'passwordUpdated') //passwordUpdated - added by Mohan Raj.V to fix mantis issue id 12855
+                    {
+                        // modified by mohan raj.V to fix mantis issue id 12856
+                        document.getElementById("feedBackTd").innerHTML = '<font color=green><b><img src="<%=request.getContextPath()%>/resources/images/ums/ok.gif"/>&nbsp;&nbsp;&nbsp;' + statusMsg + '</b></font>';
+                    }
+                    else {
+                        document.getElementById("feedBackTd").innerHTML = '<font color=red><b><img src="<%=request.getContextPath()%>/resources/images/ums/critical.gif"/>&nbsp;&nbsp;&nbsp;' + statusMsg + '</b></font>';
+                    }
+                }
+            }
+
+            //Added by Anil Kumar
+            function test() {
+                document.getElementById("feedBackTd").innerHTML = "&nbsp;";
+            }
+
+            $(document).ready(function () {
+                var flagVar = '<span th:text="${statusFlag }"></span>';
+                if (flagVar != null || flagVar == "") {
+                    if (flagVar == 'failure' || flagVar == 'Failure' || flagVar == 'ValidationFailure' || flagVar == 'passwordUpdated'  //passwordUpdated added by mohan raj.v
+                        || flagVar == 'Failure' || flagVar == 'SessionExpired' || flagVar == 'AccessDenied')//SessionExpired,AccessDenied Conditions Added By Kaviraj 
+                    {
+                        $('#myModal').modal('show');
+                    }
+                }
+            });
+
+            //End by Anil Kumar
+
+        </script>
+
+
+        <script type="text/javascript" th:inline="javascript">
+            $(document).ready(function () {
+
+                var keypairUrl = /*[[@{/keypairrequest}]]*/'/keypairrequest';
+
+                $("#Userlogin").jCryption({
+                    getKeysURL: keypairUrl,
+                    beforeEncryption: function () {
+                        return formValidation();
+                    },
+                    encryptionFinished: function (encryptedString, objectLength) {
+                        return true;
+                    }
+                });
+
+            });
+
+
+            $(function () {
+                $(".keys").find("input").attr('disabled', 'disabled');
+                $('.prettycheckbox').click(function () {
+                    if ($(this).parent().find("input").is(':checked')) {
+                        $(".keys").find("input").removeAttr('disabled');
+                        $("#password").attr("readonly", "readonly");//added by Nancy for mantis id :13461 on 24-05-16(keboard disable)
+                    } else {
+                        $(".keys").find("input").attr('disabled', 'disabled');
+                        $("#password").removeAttr("readonly");//added by Nancy for mantis id :13461 on 24-05-16(keboard disable)
+                    }
+                });
+            });
+            $('#user-type-login').tabCollapse();
+
+
+            function fetchInstitution() {
+
+                var jsonList = "";
+                var list = "";
+
+
+                $.ajax({
+                    url: '[[ @{/fetchInstitution.rcn} ]]',
+                    type: 'POST',
+                    cache: false,
+                    //data: {"reporttype":report},
+                    async: false,
+                })
+                    .done(function (data) {
+                        $("#loginas").html('');
+
+                        data = data.replaceAll("&#34;", "\"");
+                        // alert(data);
+                        // jsonList=JSON.parse(data);
+
+                        if (jsonList != null) {
+                            $("#loginas").html('');
+
+                            for (var i = 0; i < jsonList.length; i++) {
+
+                                list = jsonList[i].loginas;
+
+                                alert(list);
+                                $("#loginas").append('<option value="' + list + '">' + list + '</option>');
+
+                            }
+                        }
+
+                    });
+
+
+            }
+            var myCaptcha = {};
+
+            function refresh() {
+                myCaptcha.reset();
+            }
+
+
+
+            $(document).ready(function () {
+
+                myCaptcha = new jCaptcha({
+
+                    callback: function (response, $captchaInputElement) {
+
+                        if (response == 'success') {
+
+                            /*   <%-- 	document.Userlogin.action =  "<%=request.getContextPath()%>/common/ums_lu/u_4.htm";
+                                  document.Userlogin.cspg.value = formParameterValue(document.Userlogin,encode64(document.Userlogin.CSRFToken.value).toString().toUpperCase());
+                                  document.Userlogin.submit();  --%> */
+                            return true;
+
+                        }
+
+                        else if (response == 'error') {
+
+                            alert('[[#{ums.invalid.captcha}]]');
+                            return false;
+                        }
+
+                    }
+
+                });
+
+
+            });
+
+        </script>
+
+        <style>
+            .customAlertBox {
+                position: fixed;
+                z-index: 2000;
+            }
+        </style>
+    </head>
+
+<th:block layout:fragment="content">
+
+
+
+
+    <body>
+        <div class="modal-header">
+            <h4 class="modal-title">
+                User Login
+            </h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <section class="login-container">
+            <!-- 	 
+        	 <%-- Added and commented by Anil Kumar D 
+        	 <span th:text="${statusFlag }"></span> --%> -->
+
+            <!-- <div th:replace="VirtualKeyBoard :: keyboard"></div> -->
+            <div th:replace="fragments/VirtualKeyBoard :: virtualKeyboard"></div>
+            <div class="login">
+                <div id="feedBackTd"><button type="button" class="btn-close" data-bs-dismiss="alert"
+                        aria-label="Close"></button>Error Message</div>
+                <form th:action="@{/common/ums_lu/u_4.rcn}" th:object="${userForm}" method="post" autocomplete="off"
+                    id="Userlogin" name="Userlogin">
+                    <div class="form">
+
+                        <!-- User ID -->
+						<div>
+							<label th:text="#{ums.user.id}"></label>
+							<input class="logintextbox textbox" type="text" th:field="*{userid}" maxlength="20"
+								autocomplete="off" onpaste="return false;">
+							<!-- th:attr="onkeypress='return blockchars(this,event,false, \'' + ${UserIdAllowChar} + '\')'" /> -->
+							<!-- <span th:text="${errors.userid}"></span> -->
+						</div>
+
+                        <!-- Password -->
+						<div>
+							<label th:text="#{ums.pass.password}"></label>
+							<input name="password" id="password" class="logintextbox textbox" type="password"
+								th:field="*{passwordEnc}" autocomplete="off" maxlength="50" onpaste="return false;" />
+							<!-- <span th:text="${errors.passwordEnc}"></span> -->
+						</div>
+
+                        <!-- Login As -->
+						<div>
+							<label th:text="#{ums.loginas}"></label>
+							<br>
+
+							<input th:field="*{loginas}" id="loginas" class="logintextbox textbox" type="text" maxlength="3"
+								onpaste="return false;" onkeypress="return blockchars(this,event,false,new RegExp('^[A-Za-z]$'))"  />
+							<!-- <span th:text="${errors.loginas}"></span> -->
+							<!--     <%--  <select id="loginas" name="loginas" maxlength="3" onpaste="return false;" style="width:330px;"onkeypress="return blockchars(this,event,false,/^[A-Za-z]$/)" >
+								 		 <option value="">Not Selected</option> 
+										  <option value=${institutionConfigList.loginas eq ''}
+										   <th:block th:each="loginlist : ${loginlist}">
+										<option value="${loginlist.loginas}">${loginlist.loginas}</option>
+									</th:block> 
+							      	</select> --%> -->
+						</div>
+						<br>
+                       
+                        <!-- Captcha -->
+						<div>
+
+							<img align="right" height="25" width="25" style="margin-Right:25px"
+								th:src="@{/resources/images/ums/reload.png}" onclick="return refresh();" />
+
+							<input type="text" id="j_captcha_response" name="j_captcha_response" class="jCaptcha"
+								th:placeholder="#{ums.user.captcha}" />
+
+						</div>
+
+                        <!-- Virtual Keyboard -->
+						<div>
+							<input type="checkbox" id="keyboardtoggle" />
+							<label for="keyboardtoggle">Enable Virtual Keyboard</label>
+						</div>
+
+                        <!-- Buttons -->
+						<p>
+							<input name="" type="submit" class="btn btn-primary" value="Submit">
+							&nbsp;&nbsp;
+							<input name="" type="reset" class="btn btn-primary gray-btn" value="Reset"
+								onclick="javascript:clearFun();">
+							&nbsp;&nbsp;
+
+							<!--  <%---  Naresh Started Changes on 08/10/15 ---%>	 -->
+
+							<span class="login-footer-link" style="  margin: 7px; display: inline-block;">
+								<a href="javascript:forgotPassword();"><span
+										class="forgot-password-icon">&nbsp;</span>&nbsp;Forgot Password</a>
+							</span>
+
+							<!--  <%--- Naresh Ended Changes on 08/10/15 ---%>	 -->
+						</p>
+
+
+
+                    </div>
+                </form>
+            </div>
+            </div>
+        </section>
+        </div>
+
+        <!--   <%--<div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>--%> -->
+        </div>
+        <!--   <%-- /.modal-content --%> -->
+
+
+     
+    </body>
+
+       <script th:inline="javascript">
+            $(document).ready(function () {
+                //	$("div.has-pretty-child > a").remove();
+            });
+            loadStatus(statusFlag, statusMsg); 
+        </script>
+
+</th:block>
+
+</html>
