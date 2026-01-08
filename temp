@@ -656,3 +656,13 @@
     <input type="hidden" id="customAlertBoxUniqueNum" value="1"/>
 </body>
 </html>
+
+
+
+  <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function () {
+            loadVirtualKB(); // same behavior as JSP
+        });
+        /*]]>*/
+    </script>
